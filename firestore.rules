@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Users collection: private user profiles
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Blanket listing forbidden to protect PII
+      allow create: if isOwner(userId)
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() <= 256;
+      allow update: if isOwner(userId)
+                    && request.resource.data.uid == resource.data.uid;
+      allow delete: if isOwner(userId);
+    }
+
+    // Documents collection: user's private analyzed study materials
+    match /documents/{documentId} {
+      // Must be signed in, valid ID, and owned by current user
+      allow get: if isSignedIn()
+                 && isValidId(documentId)
+                 && resource.data.userId == request.auth.uid;
+
+      // Secure List Query: rule itself evaluates resource.data against auth.uid
+      allow list: if isSignedIn()
+                  && resource.data.userId == request.auth.uid;
+
+      allow create: if isSignedIn()
+                    && isValidId(documentId)
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.fileName is string
+                    && request.resource.data.fileName.size() <= 500
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() <= 500
+                    && request.resource.data.summary is string
+                    && request.resource.data.summary.size() <= 5000;
+
+      allow update: if isSignedIn()
+                    && isValidId(documentId)
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == resource.data.userId;
+
+      allow delete: if isSignedIn()
+                    && isValidId(documentId)
+                    && resource.data.userId == request.auth.uid;
+    }
+  }
+}

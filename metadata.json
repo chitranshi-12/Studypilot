@@ -1,0 +1,8 @@
+{
+  "name": "StudyPilot",
+  "description": "AI exam-preparation platform that turns PDFs into high-yield notes, visual diagrams, worked examples, and adaptive test sessions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile representation in StudyPilot",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique user ID"
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name"
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "User avatar photo URL"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of account creation"
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "StudyDocument": {
+      "title": "StudyDocument",
+      "description": "Analyzed PDF document containing high-yield notes, explanations, and test history",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document unique identifier"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the document owner"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "Original PDF file name"
+        },
+        "fileSize": {
+          "type": "number",
+          "description": "File size in bytes"
+        },
+        "title": {
+          "type": "string",
+          "description": "AI-generated high-yield document title"
+        },
+        "summary": {
+          "type": "string",
+          "description": "2-3 sentence executive summary of the document"
+        },
+        "extractedSnippet": {
+          "type": "string",
+          "description": "Extracted key text excerpt from PDF analysis"
+        },
+        "isTruncated": {
+          "type": "boolean",
+          "description": "Whether only a portion of an exceptionally large PDF was analyzed"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": ["id", "userId", "fileName", "title", "summary"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Private user account metadata and profile settings"
+    },
+    "/documents/{documentId}": {
+      "schema": {
+        "$ref": "#/entities/StudyDocument"
+      },
+      "description": "Private study materials, notes, explanations, and test sessions created by the owner"
+    }
+  }
+}
